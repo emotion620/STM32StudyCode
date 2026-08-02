@@ -1,0 +1,10 @@
+# Keil编译文件
+Objects/
+Listings/
+*.axf
+*.hex
+*.o
+*.dep
+
+# VS Code配置
+.vscode/
