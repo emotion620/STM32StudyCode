@@ -1,10 +1,15 @@
-# Keil编译文件
+# Keil 编译生成文件
 Objects/
 Listings/
+Debug/
 *.axf
 *.hex
 *.o
 *.dep
 
-# VS Code配置
+# Keil 用户配置文件
+*.uvguix.*
+*.uvoptx
+
+# VS Code 配置
 .vscode/
