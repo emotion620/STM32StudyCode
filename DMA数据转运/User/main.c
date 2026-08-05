@@ -3,7 +3,7 @@
 #include "Delay.h"
 #include "MyDMA.h"
 
-uint8_t Adda[4]={0x01,0x02,0x03,0x04};
+uint8_t Adda[4]={0x00,0x01,0x02,0x03};
 uint8_t Addb[4];
 int main(void)
 {
