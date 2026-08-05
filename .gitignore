@@ -13,8 +13,8 @@ Debug/
 *.uvguix.*
 *.uvoptx
 
-# Debug configuration
-DebugConfig/
+# Keil debug config
+**/DebugConfig/
 *.dbgconf
 
 # VS Code
