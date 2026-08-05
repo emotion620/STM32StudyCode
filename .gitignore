@@ -1,15 +1,24 @@
-# Keil 编译生成文件
+# Keil build output
 Objects/
 Listings/
 Debug/
+
 *.axf
 *.hex
 *.o
 *.dep
+*.d
 
-# Keil 用户配置文件
+# Keil user settings
 *.uvguix.*
 *.uvoptx
 
-# VS Code 配置
+# Debug configuration
+DebugConfig/
+*.dbgconf
+
+# VS Code
 .vscode/
+
+# System files
+Thumbs.db
