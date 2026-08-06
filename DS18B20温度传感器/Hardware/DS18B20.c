@@ -24,6 +24,8 @@ float DS18B20_GetT(void)
 	OneWire_SendByte(READ_SCRATCHPAD);
 	LSB=OneWire_ReceiveByte();
 	MSB=OneWire_ReceiveByte();
+	OLED_ShowString(3,9,":LSB");
+	OLED_ShowString(4,9,":MSB");
 	OLED_ShowBinNum(3,1,LSB,8);
 	OLED_ShowBinNum (4,1,MSB,8);
 	Temp=(MSB<<8)|LSB;
