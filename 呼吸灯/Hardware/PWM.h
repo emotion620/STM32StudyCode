@@ -2,7 +2,7 @@
 #define  __PWM_H__
 
 void PWM_Init(void);
-void RGB_SetColor(uint16_t R,uint16_t G,uint16_t B);
-void RGB_Breath(void);
+void RGB_SetSameColor(void);
+void RGB_SetRedGreenColor(void);
 
 #endif

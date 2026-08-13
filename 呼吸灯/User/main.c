@@ -2,7 +2,6 @@
 #include "Delay.h"
 #include "PWM.h"
 #include "OLED.h"
-#include "Delay.h"
 
 int main(void)
 {
@@ -10,6 +9,10 @@ int main(void)
 
 	while(1)
 	{
-		RGB_Breath();
+		RGB_SetSameColor();
+		Delay_ms(1000);
+		RGB_SetRedGreenColor();
+		Delay_ms(1000);
+
 	}
 }

@@ -52,30 +52,16 @@ void PWM_Init(void)
 	TIM_Cmd(TIM2,ENABLE);		//×îºó¿ªÆôÊ±ÖÓ
 }
 
-void RGB_SetColor(uint16_t R,uint16_t G,uint16_t B)
+void RGB_SetSameColor(void)
 {
-    TIM_SetCompare1(TIM2,R);   // PA0 ºì
-    TIM_SetCompare2(TIM2,G);   // PA1 ÂÌ
-    TIM_SetCompare3(TIM2,B);   // PA2 À¶
+    TIM_SetCompare1(TIM2,5);   // PA0 ºì
+    TIM_SetCompare2(TIM2,99);   // PA1 ÂÌ
+    TIM_SetCompare3(TIM2,10);   // PA2 À¶
 }
 
-void RGB_Breath(void)
+void RGB_SetRedGreenColor(void)
 {
-    int i;
-
-    while(1)
-    {
-        // Ãð -> ÁÁ
-        for(i=0;i<=99;i++)
-        {
-            RGB_SetColor(i,i,i);
-            Delay_ms(8);
-        }
-        // ÁÁ -> Ãð
-        for(i=99;i>=0;i--)
-        {
-            RGB_SetColor(i,i,i);
-            Delay_ms(8);
-        }
-    }
+    TIM_SetCompare1(TIM2,5);   // PA0 ºì
+    TIM_SetCompare2(TIM2,99);   // PA1 ÂÌ
+    TIM_SetCompare3(TIM2,0);   // PA2 À¶
 }
