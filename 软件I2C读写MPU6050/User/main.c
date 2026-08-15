@@ -2,18 +2,18 @@
 #include "OLED.h"
 #include "MPU6050.h"
 
+int16_t Ax,Ay,Az,Gx,Gy,Gz;
 int main(void)
 {
+	
 	OLED_Init();
 	MPU6050_Init();
-	MPU6050_WriteReg(0x6B,0x00);
-	MPU6050_WriteReg(0x19,0x21);
-	
-	uint8_t ID=MPU6050_ReadReg(0x19);
-	OLED_ShowString(1,1,"ID:");
-	OLED_ShowHexNum(1,4,ID,2);
 	while(1)
 	{
-		
+		MPU6050_GetData(&Ax,&Ay,&Az,&Gx,&Gy,&Gz);
+		OLED_ShowSignedNum(1,1,Ax,5);
+		OLED_ShowSignedNum(2,1,Ay,5);
+		OLED_ShowSignedNum(3,1,Az,5);
+
 	}
 }

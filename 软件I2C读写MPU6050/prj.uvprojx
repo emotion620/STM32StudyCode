@@ -700,6 +700,11 @@
               <FileType>5</FileType>
               <FilePath>.\Hardware\MPU6050.h</FilePath>
             </File>
+            <File>
+              <FileName>MPUReg.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\MPUReg.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
