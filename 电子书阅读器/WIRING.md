@@ -3,9 +3,10 @@
 把一部 txt 小说存进 **W25Q64（8MB SPI Flash）**，用 **0.96 寸 SSD1306 OLED** 一屏 5 行、每行 21 个字符地读。
 工程在 `电子书阅读器\project.uvprojx`（Keil MDK，STM32F103C8，标准外设库）。
 
-> 关于《Wonder》：这是一本在版权保护期内的书，我不能把正文写进代码或打包给你。
-> 程序本身支持任意 txt —— 你自己有合法电子版的话，导出成 txt 后用 `tools\upload_book.py` 一键写进 flash 就能读。
-> 仓库里附了一段我自己写的测试文本 `tools\sample.txt`，可以先把整条链路跑通。
+> 仓库里现在放的是 **《The Gift of the Magi》（麦琪的礼物，O. Henry，1906）**——已经过了版权保护期，
+> 正文在 `tools\gift_of_the_magi.txt`，129 页，直接写进 flash 就能读。
+> 程序本身支持任意 txt：自己的电子版导出成 txt 后，用 `tools\upload_book.py` 一键写进去。
+> `tools\sample.txt` 是我写的短测试文本，只想验证链路时可以先用它。
 
 ---
 
@@ -13,9 +14,9 @@
 
 1. 按下面的接线表插好线，Keil 打开 `project.uvprojx`，F7 编译、F8 下载；
 2. OLED 显示 `NO BOOK` 时，插上 USB-TTL，运行：
-   `python upload_book.py tools\sample.txt --port COM5`
+   `python upload_book.py tools\gift_of_the_magi.txt --port COM5`
    看到 `完成！` 就说明整条链路通了；
-3. 按 PB1/PB11 翻页。确认没问题后，把 `sample.txt` 换成你自己的小说 txt 再跑一次。
+3. 按 PB1/PB11 翻页，断电再上电会回到上次看到的那一页。
 
 ---
 
@@ -211,7 +212,23 @@ python upload_book.py Wonder.txt --show 0
 
 ---
 
-## 九、文件结构
+## 九、把 PDF 电子书变成 txt
+
+仓库里这本书就是从 PDF 转来的，两个脚本可以复用：
+
+```bat
+python extract_pdf_text.py "D:\books\xxx.pdf" raw.txt   :: 抽文字（带 ToUnicode 的文本型 PDF）
+python make_book.py                                     :: 清洗 + 分页预览
+```
+
+- `extract_pdf_text.py` 不依赖任何第三方库，靠解析 PDF 的 ToUnicode 表把字形号翻回字符；
+  扫描版（整页是图片）的 PDF 抽不出文字，需要先 OCR；
+- `make_book.py` 里写死了《The Gift of the Magi》的裁剪规则（去掉 Feedbooks 版权页和推荐页），
+  换书时把 `PDF` 路径、正文开头/结尾的锚点改一下即可。
+
+---
+
+## 十、文件结构
 
 ```
 电子书阅读器\
@@ -221,6 +238,9 @@ python upload_book.py Wonder.txt --show 0
 ├─ User\main.c                阅读器主逻辑 + 串口协议
 ├─ User\Book.c                flash 分区、书头、进度、CRC
 ├─ tools\upload_book.py       PC 端分页 + 串口写入
+├─ tools\gift_of_the_magi.txt 内置书目正文（129 页）
+├─ tools\extract_pdf_text.py  PDF 抽文字
+├─ tools\make_book.py         清洗 + 生成书本文本
 ├─ tools\gen_font.py          6x11 字库生成脚本（改字体时用）
 └─ tools\sample.txt           测试用短文本
 ```
