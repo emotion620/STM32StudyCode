@@ -20,5 +20,12 @@ Debug/
 # VS Code
 .vscode/
 
+# Python
+__pycache__/
+*.pyc
+
+# 日志
+*.log
+
 # System files
 Thumbs.db

@@ -1,0 +1,36 @@
+The Lantern Keeper
+
+Chapter One - The Small Machine
+
+The workshop smelled of solder and old paper, and on the bench
+stood a board no bigger than a matchbox. On its little screen a
+single line of text waited, patient as a patient thing.
+
+"Read me," it seemed to say. "I have room for five lines and no
+more, so choose your words carefully."
+
+Mara laughed at that. She had built the thing from parts her
+father had left in a tin: a chip with too few pins, a flash memory
+that held eight million bytes, and a display that glowed the exact
+blue of a winter evening.
+
+She typed a sentence and watched it appear, letter by letter, each
+one six pixels wide and eleven tall. Then she typed another, and
+another, until the screen was full.
+
+Chapter Two - What Fits
+
+A screen this small teaches you something about stories. You
+cannot waste a line. Every word has to earn its place, and when
+the page is full you press a button and the words slide away,
+making room for the next ones.
+
+"It's like breathing," she told the cat. "In, and out."
+
+The cat did not answer. The cat was busy sitting on the flash
+memory, which is what cats do with important things.
+
+So she kept going, page after page, through the quiet afternoon,
+until the whole book fit inside a chip the size of a fingernail.
+
+THE END
