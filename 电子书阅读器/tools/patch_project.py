@@ -71,6 +71,13 @@ if "<FileName>Book.c</FileName>" not in text:
     text = text.replace(anchor, anchor + "\n" + extra, 1)
     changed.append("Book.c/h")
 
+if "<FileName>Book_Builtin.c</FileName>" not in text:
+    anchor = file_xml("Book.h", 5, "User")
+    assert anchor in text, "先要有 Book.h 才能插 Book_Builtin"
+    extra = "\n".join(file_xml(fn, ft, "User") for fn, ft in [("Book_Builtin.c", 1), ("Book_Builtin.h", 5)])
+    text = text.replace(anchor, anchor + "\n" + extra, 1)
+    changed.append("Book_Builtin.c/h")
+
 open(PROJ, "wb").write(text.encode(enc))
 print("encoding", enc, "changed:", changed or "nothing")
 

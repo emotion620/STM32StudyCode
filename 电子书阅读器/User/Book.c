@@ -1,6 +1,7 @@
 #include "stm32f10x.h"
 #include <string.h>
 #include "Book.h"
+#include "Book_Builtin.h"
 #include "W25Q64.h"
 
 /*
@@ -8,6 +9,9 @@
  *   0x000000 ~ 0x000FFF : 书头（magic / 每屏参数 / 页数 / 标题）
  *   0x001000 ~ 0x7FEFFF : 正文，每页固定占 128 字节
  *   0x7FF000 ~ 0x7FFFFF : 阅读进度
+ *
+ * W25Q64 里没有书时，退回到编译进固件的那份正文（Book_Builtin.c），
+ * 这样只用 ST-Link 烧程序也能直接读。
  */
 #define BOOK_HEADER_ADDR	0x000000UL
 #define BOOK_DATA_ADDR		0x001000UL
@@ -17,10 +21,32 @@
 
 static uint32_t bookPages;
 static char bookTitle[BOOK_TITLE_MAX + 1];
+static uint8_t bookBuiltin;
+static uint8_t flashPresent;
 
 void Book_Init(void)
 {
+	uint8_t mid = 0, type = 0, capacity = 0;
+
 	W25Q64_Init();
+	W25Q64_ReadID(&mid, &type, &capacity);
+	/* W25Q64 的 JEDEC ID：EF 40 17。没接 flash 时读回来全是 0xFF */
+	flashPresent = (mid == 0xEF && type == 0x40) ? 1 : 0;
+}
+
+/* 用固件里内置的那份正文 */
+static uint8_t Book_UseBuiltin(void)
+{
+	if (Book_BuiltinPageCount == 0 || Book_BuiltinPageCount > BOOK_MAX_PAGES)
+	{
+		return 0;
+	}
+	bookPages = Book_BuiltinPageCount;
+	memset(bookTitle, 0x00, sizeof(bookTitle));
+	strncpy(bookTitle, Book_BuiltinTitle, BOOK_TITLE_MAX);
+	bookTitle[BOOK_TITLE_MAX] = '\0';
+	bookBuiltin = 1;
+	return 1;
 }
 
 uint8_t Book_Open(void)
@@ -31,12 +57,18 @@ uint8_t Book_Open(void)
 
 	bookPages = 0;
 	bookTitle[0] = '\0';
+	bookBuiltin = 0;
+
+	if (!flashPresent)
+	{
+		return Book_UseBuiltin();
+	}
 
 	W25Q64_ReadData(BOOK_HEADER_ADDR, buf, sizeof(buf));
 
 	if (buf[0] != 'W' || buf[1] != 'B' || buf[2] != 'K' || buf[3] != '1')
 	{
-		return 0;
+		return Book_UseBuiltin();
 	}
 
 	pageChars = (uint16_t)(buf[8] | (buf[9] << 8));
@@ -44,9 +76,9 @@ uint8_t Book_Open(void)
 	pages     = (uint32_t)buf[12] | ((uint32_t)buf[13] << 8) |
 	            ((uint32_t)buf[14] << 16) | ((uint32_t)buf[15] << 24);
 
-	if (buf[6] != BOOK_COLS || buf[7] != BOOK_LINES) return 0;
-	if (pageChars != BOOK_PAGE_CHARS || slot != BOOK_SLOT_SIZE) return 0;
-	if (pages == 0 || pages > BOOK_MAX_PAGES) return 0;
+	if (buf[6] != BOOK_COLS || buf[7] != BOOK_LINES) return Book_UseBuiltin();
+	if (pageChars != BOOK_PAGE_CHARS || slot != BOOK_SLOT_SIZE) return Book_UseBuiltin();
+	if (pages == 0 || pages > BOOK_MAX_PAGES) return Book_UseBuiltin();
 
 	memcpy(bookTitle, &buf[20], BOOK_TITLE_MAX);
 	bookTitle[BOOK_TITLE_MAX] = '\0';
@@ -76,6 +108,12 @@ void Book_ReadPage(uint32_t page, char *buf)
 	if (page >= bookPages)
 	{
 		memset(buf, 0, BOOK_PAGE_CHARS);
+		return;
+	}
+
+	if (bookBuiltin)
+	{
+		memcpy(buf, Book_BuiltinPages[page], BOOK_PAGE_CHARS);
 		return;
 	}
 	W25Q64_ReadData(BOOK_DATA_ADDR + page * BOOK_SLOT_SIZE, raw, BOOK_SLOT_SIZE);
@@ -179,6 +217,8 @@ void Book_SavePosition(uint32_t page)
 	uint8_t buf[16];
 	uint8_t i;
 
+	if (!flashPresent) return;		/* 没接 W25Q64 就不存进度，避免空等超时 */
+
 	memset(buf, 0x00, sizeof(buf));
 	buf[0] = 'P'; buf[1] = 'O'; buf[2] = 'S'; buf[3] = '1';
 	buf[4] = (uint8_t)page;
@@ -196,6 +236,8 @@ uint32_t Book_LoadPosition(void)
 {
 	uint8_t buf[16];
 	uint32_t page;
+
+	if (!flashPresent) return 0;
 
 	W25Q64_ReadData(BOOK_POS_ADDR, buf, sizeof(buf));
 	if (buf[0] != 'P' || buf[1] != 'O' || buf[2] != 'S' || buf[3] != '1') return 0;

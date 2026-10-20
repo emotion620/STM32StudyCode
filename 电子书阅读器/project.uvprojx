@@ -52,7 +52,7 @@
           <OutputName>ebook</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
@@ -679,6 +679,16 @@
               <FileName>Book.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\User\Book.h</FilePath>
+            </File>
+            <File>
+              <FileName>Book_Builtin.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\Book_Builtin.c</FilePath>
+            </File>
+            <File>
+              <FileName>Book_Builtin.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\User\Book_Builtin.h</FilePath>
             </File>
           </Files>
         </Group>

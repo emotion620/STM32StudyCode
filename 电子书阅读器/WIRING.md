@@ -1,23 +1,22 @@
 # STM32 电子书阅读器 —— 接线与使用说明
 
-把一部 txt 小说存进 **W25Q64（8MB SPI Flash）**，用 **0.96 寸 SSD1306 OLED** 一屏 5 行、每行 21 个字符地读。
+把一部 txt 小说用 **0.96 寸 SSD1306 OLED** 一屏 5 行、每行 21 个字符地读。
+书可以放在两处：**编译进固件**（只用 ST-Link 就能读），或者写进 **W25Q64（8MB SPI Flash）**（能放长篇）。
 工程在 `电子书阅读器\project.uvprojx`（Keil MDK，STM32F103C8，标准外设库）。
 
 > 仓库里现在放的是 **《The Gift of the Magi》（麦琪的礼物，O. Henry，1906）**——已经过了版权保护期，
-> 正文在 `tools\gift_of_the_magi.txt`，129 页，直接写进 flash 就能读。
-> 程序本身支持任意 txt：自己的电子版导出成 txt 后，用 `tools\upload_book.py` 一键写进去。
-> `tools\sample.txt` 现在存的就是这本书的正文（和 `tools\gift_of_the_magi.txt` 是同一份内容，
-> 后者只是文件名的历史遗留，`selftest.py` 默认读 `sample.txt`）。
+> 正文在 `tools\gift_of_the_magi.txt`，129 页，**已经编译进固件**，烧进去就能读，不需要 USB-TTL。
+> 程序本身支持任意 txt：想换书就重新生成内置正文（第十一节），或者走串口上传（第五节）。
 
 ---
 
-## 最短路径（三步）
+## 最短路径（只用 ST-Link）
 
-1. 按下面的接线表插好线，Keil 打开 `project.uvprojx`，F7 编译、F8 下载；
-2. OLED 显示 `NO BOOK` 时，插上 USB-TTL，运行：
-   `python upload_book.py tools\gift_of_the_magi.txt --port COM5`
-   看到 `完成！` 就说明整条链路通了；
-3. 按 PB1/PB11 翻页，断电再上电会回到上次看到的那一页。
+1. 按下面的接线表接好 OLED、W25Q64、两个按键，ST-Link 接上；
+2. Keil 打开 `project.uvprojx`，F7 编译、F8 下载（也会生成 `Objects\ebook.hex`，用 STM32CubeProgrammer 烧同样可以）；
+3. 按 PB1/PB11 翻页。开机直接显示正文，不会出现 `NO BOOK`。
+
+> W25Q64 是**可选**的：只读内置正文时，不接 W25Q64 也能正常显示；接了的话，阅读进度会存在里面。
 
 ---
 
@@ -29,7 +28,7 @@
 | 1 | W25Q64 模块 | 8MB SPI Flash，模块上一般标 `W25Q64` |
 | 1 | 0.96 寸 OLED | SSD1306，I2C 四针（VCC/GND/SCL/SDA） |
 | 2 | 轻触按键 | 接 GND 即可，用内部上拉 |
-| 1 | USB-TTL 模块 | CH340 / CP2102，**电平选 3.3V** |
+| 1 | USB-TTL 模块（可选） | CH340 / CP2102，**电平选 3.3V**；只有往 W25Q64 上传长篇时才需要 |
 | 1 | ST-Link | 用来烧程序（和你平时一样） |
 | 若干 | 杜邦线、面包板 | |
 
@@ -130,7 +129,7 @@ W25Q64 的 CLK 线尽量短一点，杜邦线超过 20cm 时软件 SPI 偶尔会
 
 ---
 
-## 五、把书写进 W25Q64
+## 五、把书写进 W25Q64（可选，适合长篇）
 
 ### 1) 准备 txt
 
@@ -200,7 +199,7 @@ python upload_book.py Wonder.txt --show 0
 |---|---|
 | OLED 全黑 | PB8/PB9 是否接反（SCL/SDA）；模块有没有 4.7k 上拉（多数自带）；3.3V 有没有电 |
 | OLED 花屏/闪 | 杜邦线太长；换短一点的线，或在 `OLED.c` 里把 `OLED_I2C_DELAY()` 的 20 调大 |
-| `NO BOOK` 一直不变 | 说明没写进去：先确认 W25Q64 的 WP、HOLD 是否接了 3.3V |
+| `NO BOOK` 一直不变 | 固件里没编进正文（`User\Book_Builtin.c` 没加进工程），或者 W25Q64 里有半截旧书头 |
 | 写书时卡在 `ERASING` | 串口 TX/RX 是否交叉接（TXD→PA10，RXD→PA9）；GND 是否共地 |
 | 校验 `CRC` 失败 | 一般是 SPI 线太长或接触不良，重插后重跑一次脚本 |
 | 字太小看不清 | 这是 6x11 字体、5 行 21 列的密度换来的；想更大可以改成 8x16 字体 4 行，见下 |
@@ -229,7 +228,26 @@ python make_book.py                                     :: 清洗 + 分页预览
 
 ---
 
-## 十、文件结构
+## 十、只用 ST-Link 换书（把正文编进固件）
+
+正文是编译进固件的一份数组，在 `User\Book_Builtin.c` 里，由脚本生成：
+
+```bat
+:: 1. 改 tools\gift_of_the_magi.txt（或者用 make_book.py 从你的 PDF 生成新的 txt）
+:: 2. 重新生成数组
+python tools\make_builtin.py
+:: 3. Keil 里 F7 重新编译、F8 下载
+```
+
+- 当前占用：Code 8.3 KB + RO 15 KB ≈ **23 KB / 64 KB**，还能再塞约 40 KB 正文（≈ 5 万字符）；
+- 超过这个量，就走第五节那套：书放 W25Q64，串口上传，固件不用重编；
+- 优先级：**W25Q64 里有书就用 W25Q64 的**，没有才用内置这份。所以上传过长篇之后，想回到内置书，
+  在 W25Q64 里擦掉书头（或者断开 W25Q64 再上电）即可；
+- 没有 W25Q64 也能读，只是断电续读的进度存不下来。
+
+---
+
+## 十一、文件结构
 
 ```
 电子书阅读器\
@@ -238,7 +256,9 @@ python make_book.py                                     :: 清洗 + 分页预览
 ├─ System\Delay.c             SysTick 延时
 ├─ User\main.c                阅读器主逻辑 + 串口协议
 ├─ User\Book.c                flash 分区、书头、进度、CRC
+├─ User\Book_Builtin.c        编译进固件的正文（make_builtin.py 生成）
 ├─ tools\upload_book.py       PC 端分页 + 串口写入
+├─ tools\make_builtin.py      生成内置正文数组
 ├─ tools\gift_of_the_magi.txt 正文（129 页）
 ├─ tools\extract_pdf_text.py  PDF 抽文字
 ├─ tools\make_book.py         清洗 + 生成书本文本
