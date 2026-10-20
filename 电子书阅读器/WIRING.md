@@ -1,6 +1,6 @@
 # STM32 电子书阅读器 —— 接线与使用说明
 
-把一部 txt 小说用 **0.96 寸 SSD1306 OLED** 一屏 5 行、每行 21 个字符地读。
+把一部 txt 小说用 **0.96 寸 SSD1306 OLED** 一屏 5 行、每行 16 个字符地读。
 书可以放在两处：**编译进固件**（只用 ST-Link 就能读），或者写进 **W25Q64（8MB SPI Flash）**（能放长篇）。
 工程在 `电子书阅读器\project.uvprojx`（Keil MDK，STM32F103C8，标准外设库）。
 
@@ -202,13 +202,13 @@ python upload_book.py Wonder.txt --show 0
 | `NO BOOK` 一直不变 | 固件里没编进正文（`User\Book_Builtin.c` 没加进工程），或者 W25Q64 里有半截旧书头 |
 | 写书时卡在 `ERASING` | 串口 TX/RX 是否交叉接（TXD→PA10，RXD→PA9）；GND 是否共地 |
 | 校验 `CRC` 失败 | 一般是 SPI 线太长或接触不良，重插后重跑一次脚本 |
-| 字太小看不清 | 现在是 5x12 的 Terminal 位图字体、5 行 21 列；想更大可以换成 8x16 字库 4 行（见下） |
+| 字太小看不清 | 现在是 8x12 的像素字体（retro-pixel-arcade）、5 行 16 列；想换别的字体见下 |
 | 翻页很慢 | 正常，整屏 1024 字节走软件 I2C 大约 60ms；换成硬件 I2C 可再快几倍 |
 
 ### 想改版面
 
 - 每屏字符数：`User\Book.h` 里的 `BOOK_COLS` / `BOOK_LINES`，同时要改 `tools\upload_book.py` 顶部的 `COLS` / `LINES`（两边必须一致，否则书头校验不过）；
-- 字体：`Hardware\OLED_Font.h` 由 `tools\gen_font_gdi.py` 生成（默认取 Windows 自带的 Terminal 位图字体，5x12）；换字号就改脚本参数重新生成，再改 `OLED_CHAR_W/H` 和 `DrawPage` 的行距。
+- 字体：`Hardware\OLED_Font.h` 由 `tools\gen_font_bdf.py` 从 `tools\fonts\*.bdf` 生成（当前是 retro-pixel-arcade 8x12）；换字体就换 BDF 重新生成，再同步改 `OLED_CHAR_W/H`、`Book.h` 的 `BOOK_COLS/LINES`、`upload_book.py` 的 `COLS/LINES`，最后跑 `make_builtin.py` 重新生成正文。
 
 ---
 
@@ -259,10 +259,12 @@ python tools\make_builtin.py
 ├─ User\Book_Builtin.c        编译进固件的正文（make_builtin.py 生成）
 ├─ tools\upload_book.py       PC 端分页 + 串口写入
 ├─ tools\make_builtin.py      生成内置正文数组
-├─ tools\gift_of_the_magi.txt 正文（129 页）
+├─ tools\gift_of_the_magi.txt 正文（168 页）
 ├─ tools\extract_pdf_text.py  PDF 抽文字
 ├─ tools\make_book.py         清洗 + 生成书本文本
-├─ tools\gen_font_gdi.py      从系统位图字体生成字模（Terminal 5x12）
+├─ tools\gen_font_bdf.py      从 BDF 像素字体生成字模
+├─ tools\gen_font_gdi.py      从系统位图字体生成字模（备选）
+├─ tools\fonts\               BDF 像素字体 + OFL 授权
 └─ tools\sample.txt           同一份正文（selftest 默认读它）
 ```
 
@@ -270,6 +272,6 @@ flash 布局：
 
 ```
 0x000000  书头（magic "WBK1"、版面参数、页数、书名）
-0x001000  正文，每页固定 128 字节（105 个字符 + 补零）
+0x001000  正文，每页固定 128 字节（80 个字符 + 补零）
 0x7FF000  阅读进度（断电续读）
 ```

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 自测：用一个"假板子"跑通 upload_book.py 的完整协议，不需要真实硬件。
 假板子的行为严格照 User/main.c 和 User/Book.c 的协议实现：
@@ -105,9 +105,9 @@ class FakeBoard:
             hdr = bytearray(SLOT)
             hdr[0:4] = b"WBK1"
             hdr[4] = 1
-            hdr[6] = 21
-            hdr[7] = 5
-            hdr[8:10] = (105).to_bytes(2, "little")
+            hdr[6] = ub.COLS
+            hdr[7] = ub.LINES
+            hdr[8:10] = ub.PAGE_CHARS.to_bytes(2, "little")
             hdr[10:12] = SLOT.to_bytes(2, "little")
             hdr[12:16] = self.pages.to_bytes(4, "little")
             t = self.title.encode("ascii")[:24]
@@ -120,7 +120,7 @@ class FakeBoard:
             crc = 0xFFFFFFFF
             for p in range(self.pages):
                 base = DATA_ADDR + p * SLOT
-                for b in self.flash[base:base + 105]:
+                for b in self.flash[base:base + ub.PAGE_CHARS]:
                     crc ^= b
                     for _ in range(8):
                         crc = (crc >> 1) ^ 0xEDB88320 if (crc & 1) else (crc >> 1)

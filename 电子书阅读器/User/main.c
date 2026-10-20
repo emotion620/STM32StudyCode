@@ -139,8 +139,8 @@ static void ShowReceive(uint32_t got, uint32_t total)
 	OLED_Clear();
 	OLED_ShowString(0, 0, "RECEIVING");
 	OLED_ShowNum(0, 20, got, 5);
-	OLED_ShowChar(30, 20, '/');
-	OLED_ShowNum(36, 20, total, 5);
+	OLED_ShowChar(40, 20, '/');
+	OLED_ShowNum(48, 20, total, 5);
 	OLED_Update();
 }
 

@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-/* 一屏 5 行，每行 21 个字符（6x11 字体），共 105 个字符 */
-#define BOOK_COLS			21
+/* 一屏 5 行，每行 16 个字符（8x12 像素字体），共 80 个字符 */
+#define BOOK_COLS			16
 #define BOOK_LINES			5
 #define BOOK_PAGE_CHARS		(BOOK_COLS * BOOK_LINES)
 #define BOOK_SLOT_SIZE		128

@@ -18,11 +18,11 @@ import sys
 import time
 import zlib
 
-COLS = 21
+COLS = 16
 LINES = 5
 PAGE_CHARS = COLS * LINES
 
-# 常见“智能标点”换成 ASCII，5x7 字库只认 ASCII
+# 常见“智能标点”换成 ASCII，字库只认 ASCII
 PUNCT = {
     "\u2018": "'", "\u2019": "'", "\u201a": "'", "\u201b": "'",
     "\u201c": '"', "\u201d": '"', "\u201e": '"', "\u00ab": '"', "\u00bb": '"',

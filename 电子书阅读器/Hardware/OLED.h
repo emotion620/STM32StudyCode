@@ -5,7 +5,7 @@
 
 #define OLED_WIDTH			128
 #define OLED_HEIGHT			64
-#define OLED_CHAR_W			6
+#define OLED_CHAR_W			8
 #define OLED_CHAR_H			12
 
 void OLED_Init(void);
