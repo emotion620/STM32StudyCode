@@ -165,10 +165,10 @@ void OLED_ShowChar(uint8_t x, uint8_t y, char ch)
 	if (ch < 32 || ch > 126) ch = '?';
 	idx = (uint8_t)(ch - 32);
 
-	for (col = 0; col < 6; col++)
+	for (col = 0; col < OLED_FONT_W; col++)
 	{
-		bits = OLED_Font6x11[idx][col];
-		for (row = 0; row < 11; row++)
+		bits = OLED_Font[idx][col];
+		for (row = 0; row < OLED_FONT_H; row++)
 		{
 			if (bits & (1u << row))
 			{

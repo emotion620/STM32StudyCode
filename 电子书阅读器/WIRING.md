@@ -202,13 +202,13 @@ python upload_book.py Wonder.txt --show 0
 | `NO BOOK` 一直不变 | 固件里没编进正文（`User\Book_Builtin.c` 没加进工程），或者 W25Q64 里有半截旧书头 |
 | 写书时卡在 `ERASING` | 串口 TX/RX 是否交叉接（TXD→PA10，RXD→PA9）；GND 是否共地 |
 | 校验 `CRC` 失败 | 一般是 SPI 线太长或接触不良，重插后重跑一次脚本 |
-| 字太小看不清 | 这是 6x11 字体、5 行 21 列的密度换来的；想更大可以改成 8x16 字体 4 行，见下 |
+| 字太小看不清 | 现在是 5x12 的 Terminal 位图字体、5 行 21 列；想更大可以换成 8x16 字库 4 行（见下） |
 | 翻页很慢 | 正常，整屏 1024 字节走软件 I2C 大约 60ms；换成硬件 I2C 可再快几倍 |
 
 ### 想改版面
 
 - 每屏字符数：`User\Book.h` 里的 `BOOK_COLS` / `BOOK_LINES`，同时要改 `tools\upload_book.py` 顶部的 `COLS` / `LINES`（两边必须一致，否则书头校验不过）；
-- 字体大小：`Hardware\OLED.c` 里的 `OLED_ShowChar` 用的是 `OLED_Font6x11`，换成 8x16 字库需要同时改 `OLED_CHAR_W/H` 和 `DrawPage` 的行距。
+- 字体：`Hardware\OLED_Font.h` 由 `tools\gen_font_gdi.py` 生成（默认取 Windows 自带的 Terminal 位图字体，5x12）；换字号就改脚本参数重新生成，再改 `OLED_CHAR_W/H` 和 `DrawPage` 的行距。
 
 ---
 
@@ -262,7 +262,7 @@ python tools\make_builtin.py
 ├─ tools\gift_of_the_magi.txt 正文（129 页）
 ├─ tools\extract_pdf_text.py  PDF 抽文字
 ├─ tools\make_book.py         清洗 + 生成书本文本
-├─ tools\gen_font.py          6x11 字库生成脚本（改字体时用）
+├─ tools\gen_font_gdi.py      从系统位图字体生成字模（Terminal 5x12）
 └─ tools\sample.txt           同一份正文（selftest 默认读它）
 ```
 
