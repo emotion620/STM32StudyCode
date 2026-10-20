@@ -6,7 +6,8 @@
 > 仓库里现在放的是 **《The Gift of the Magi》（麦琪的礼物，O. Henry，1906）**——已经过了版权保护期，
 > 正文在 `tools\gift_of_the_magi.txt`，129 页，直接写进 flash 就能读。
 > 程序本身支持任意 txt：自己的电子版导出成 txt 后，用 `tools\upload_book.py` 一键写进去。
-> `tools\sample.txt` 是我写的短测试文本，只想验证链路时可以先用它。
+> `tools\sample.txt` 现在存的就是这本书的正文（和 `tools\gift_of_the_magi.txt` 是同一份内容，
+> 后者只是文件名的历史遗留，`selftest.py` 默认读 `sample.txt`）。
 
 ---
 
@@ -238,11 +239,11 @@ python make_book.py                                     :: 清洗 + 分页预览
 ├─ User\main.c                阅读器主逻辑 + 串口协议
 ├─ User\Book.c                flash 分区、书头、进度、CRC
 ├─ tools\upload_book.py       PC 端分页 + 串口写入
-├─ tools\gift_of_the_magi.txt 内置书目正文（129 页）
+├─ tools\gift_of_the_magi.txt 正文（129 页）
 ├─ tools\extract_pdf_text.py  PDF 抽文字
 ├─ tools\make_book.py         清洗 + 生成书本文本
 ├─ tools\gen_font.py          6x11 字库生成脚本（改字体时用）
-└─ tools\sample.txt           测试用短文本
+└─ tools\sample.txt           同一份正文（selftest 默认读它）
 ```
 
 flash 布局：
